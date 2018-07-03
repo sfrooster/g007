@@ -13,8 +13,6 @@
 
 # dep
 vendor
-Gopkg.lock
-Gopkg.toml
 
 # the binary
 g007
