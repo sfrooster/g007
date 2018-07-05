@@ -4,37 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/nats-io/go-nats"
 )
 
 func main() {
-	fmt.Println("Kafka Code")
-
-	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost",
-		"group.id":          "myGroup",
-		"auto.offset.reset": "earliest",
-	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	c.SubscribeTopics([]string{"myTopic", "^aRegex.*[Tt]opic"}, nil)
-
-	for {
-		msg, err := c.ReadMessage(-1)
-		if err == nil {
-			fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
-		} else {
-			fmt.Printf("Consumer error: %v (%v)\n", err, msg)
-			break
-		}
-	}
-
-	c.Close()
-
 	fmt.Println("NATS Code")
 
 	nc, _ := nats.Connect(nats.DefaultURL)
@@ -51,6 +24,11 @@ func main() {
 	var timeout = 5 * time.Second
 
 	sub, err := nc.SubscribeSync("foo")
+
+	if err != nil {
+		panic(err)
+	}
+
 	_, err = sub.NextMsg(timeout)
 
 	// Channel Subscriber
