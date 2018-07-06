@@ -1,0 +1,31 @@
+version: '2'
+
+vars:
+  KAFKA:    "github.com/confluentinc/confluent-kafka-go/kafka"
+  NATS:     "github.com/nats-io/go-nats"
+  ALL_DEPS: '{{.KAFKA}} {{.NATS}}' 
+
+tasks:
+  reqs:
+    desc: Install Dependencies
+    cmds:
+      - dep init
+      - dep ensure
+      #- dep ensure -add "{{.ALL_DEPS}}"
+      - echo "dependencies installed"
+
+  build:
+    desc: Build the Binaries
+    cmds:
+      - go build -o bin/g007-k cmd/g007-k/g007-k.go
+      - go build -o bin/g007-n cmd/g007-n/g007-n.go
+      - echo "builds complete"
+
+  all:
+    desc: Build From Scratch
+    cmds:
+      - task: reqs
+      - task: build
+      - echo "all done"
+
+  
