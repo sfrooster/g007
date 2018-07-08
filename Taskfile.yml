@@ -1,31 +1,79 @@
 version: '2'
 
 vars:
-  KAFKA:    "github.com/confluentinc/confluent-kafka-go/kafka"
-  NATS:     "github.com/nats-io/go-nats"
-  ALL_DEPS: '{{.KAFKA}} {{.NATS}}' 
+  KAFKA_DEPS:    "github.com/confluentinc/confluent-kafka-go/kafka"
+  NATS_DEPS:     "github.com/nats-io/go-nats"
 
 tasks:
-  reqs:
-    desc: Install Dependencies
+  init:
+    desc: Initialize Dependencies
     cmds:
+      - cmd: echo "Initializing dependencies"
+        silent: true
       - dep init
+    status:
+      - test -f Gopkg.toml
+      - test -f Gopkg.lock
+      - test -d vendor
+
+  reqs:
+    desc: Ensure Dependencies
+    deps: [init]
+    sources:
+      - cmd/**/*.go
+    generates:
+      - Gopkg.toml
+      - Gopkg.lock
+      - vendor/*
+    cmds:
+      - cmd: echo "Ensuring dependencies"
+        silent: true
       - dep ensure
-      #- dep ensure -add "{{.ALL_DEPS}}"
-      - echo "dependencies installed"
 
-  build:
-    desc: Build the Binaries
+  build-kafka:
+    desc: Build Kafka Binaries
+    deps: [reqs]
+    sources:
+      - cmd/g007-k/g007-k.go
+    generates:
+      - bin/g007-k
     cmds:
+      - cmd: echo "Building kafka binaries"
+        silent: true
       - go build -o bin/g007-k cmd/g007-k/g007-k.go
-      - go build -o bin/g007-n cmd/g007-n/g007-n.go
-      - echo "builds complete"
 
-  all:
-    desc: Build From Scratch
+  build-nats:
+    desc: Build Nats Binaries
+    deps: [reqs]
+    sources:
+      - cmd/g007-n/g007-n.go
+    generates:
+      - bin/g007-n
     cmds:
-      - task: reqs
-      - task: build
-      - echo "all done"
+      - cmd: echo "Building NATS binaries"
+        silent: true
+      - go build -o bin/g007-n cmd/g007-n/g007-n.go
+
+  build-all:
+    desc: Build All
+    cmds:
+      - cmd: echo "Building all"
+        silent: true
+      - task: build-kafka
+      - task: build-nats
+
+  format:
+    desc: Format Code
+    cmds:
+      - cmd: echo "Formatting code"
+        silent: true
+      - go fmt cmd/g007-k/g007-k.go
+      - go fmt cmd/g007-n/g007-n.go
+
+  test:
+    desc: Tests
+    cmds:
+      - cmd: echo "add some tests here"
+        silent: true
 
   

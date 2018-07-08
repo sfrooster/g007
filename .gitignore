@@ -12,7 +12,10 @@
 *.out
 
 # dep
-vendor
+vendor/
+
+# task
+.task/
 
 # the binary
 bin/
