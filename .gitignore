@@ -13,6 +13,7 @@
 
 # dep
 vendor/
+_vendor-*/
 
 # task
 .task/

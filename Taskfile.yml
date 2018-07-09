@@ -54,13 +54,40 @@ tasks:
         silent: true
       - go build -o bin/g007-n cmd/g007-n/g007-n.go
 
-  build-all:
-    desc: Build All
+  build-bins:
+    desc: Build Bins
     cmds:
-      - cmd: echo "Building all"
+      - cmd: echo "Building bins ${GOOS} ${GOARCH}"
         silent: true
       - task: build-kafka
       - task: build-nats
+
+  build-for-osx:
+    desc: Build For OSX
+    env:
+      GOOS: darwin
+      GOARCH: amd64
+    cmds:
+      - cmd: echo "Building for OSX"
+        silent: true
+      - task: build-bins
+
+  build-for-linux:
+    desc: Build For Linux
+    env:
+      GOOS: linux
+      GOARCH: amd64
+    cmds:
+      - cmd: echo "Building for Linux"
+        silent: true
+      - task: build-bins
+
+  build-all:
+    desc: Build All Bins For All Targets
+    deps: [build-for-linux,build-for-osx]
+    cmds:
+      - cmd: echo "Building All"
+        silent: true
 
   format:
     desc: Format Code
